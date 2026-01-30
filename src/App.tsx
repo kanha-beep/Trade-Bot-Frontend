@@ -6,24 +6,26 @@ import Strategies from "./pages/Strategies";
 import Fundamental from "./pages/Fundamental";
 import News from "./pages/News";
 import { getPositions, getStatus } from "./components/api";
-
+type VcpResult = {
+  symbol: string;
+  isVcp: boolean;
+};
 type ApiResponse = {
-  results: string[];
+  results: VcpResult[];
   last_run: number;
 };
 
 function App() {
   const [currentPage, setCurrentPage] = useState("home");
-  const [results, setResults] = useState<string[]>([]);
+  const [results, setResults] = useState<VcpResult[]>([]);
   const [lastRun, setLastRun] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
-
   useEffect(() => {
     const fetchData = async () => {
       try {
         const res = await getPositions();
         const data = res.data as ApiResponse;
-
+        console.log("data:", data.results);
         setResults(data.results || []);
         setLastRun(data.last_run);
         setError(null);
@@ -49,14 +51,14 @@ function App() {
         return <Home />;
     }
   };
-  console.log("all stocks: ", results);
+  // console.log("all stocks: ", results);
   return (
     <div className="min-h-screen flex flex-col">
       <Header currentPage={currentPage} onNavigate={setCurrentPage} />
       <main className="flex-1">{renderPage()}</main>
       <Footer />
 
-      <div style={{ padding: 20 }}>
+      {/* <div style={{ padding: 20 }}>
         <h2>VCP Stocks</h2>
 
         {error && <p style={{ color: "red" }}>{error}</p>}
@@ -70,11 +72,11 @@ function App() {
         ) : (
           <ul>
             {results.map((s) => (
-              <li key={s}>{s}</li>
+              <li key={s.symbol}>{s.symbol}</li>
             ))}
           </ul>
         )}
-      </div>
+      </div> */}
     </div>
   );
 }

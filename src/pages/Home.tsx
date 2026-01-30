@@ -14,8 +14,12 @@ import MiniChart from "../components/UI/MiniChart";
 import { getPositions, getStatus } from "../components/api.js";
 import { useState } from "react";
 
+type VcpResult = {
+  symbol: string;
+  isVcp: string;
+};
 type ApiResponse = {
-  results: string[];
+  results: VcpResult[];
   last_run: number;
 };
 export default function Home() {
@@ -88,7 +92,7 @@ export default function Home() {
       strength: 7.2,
     },
   ];
-  const [results, setResults] = useState<string[]>([]);
+  const [results, setResults] = useState<VcpResult[]>([]);
   const [lastRun, setLastRun] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -290,7 +294,22 @@ export default function Home() {
                     className="hover:bg-primary-800/30 transition-colors"
                   >
                     <td className="py-4 px-4 font-semibold text-primary-100">
-                      {result}
+                      {result.symbol}
+                    </td>
+                    <td className="py-4 px-4 text-right">
+                      <Badge variant="success" size="sm">
+                        {result.isVcp && <p>n</p>}
+                      </Badge>
+                    </td>
+                    <td className="py-4 px-4">
+                      <Badge variant="accent" size="sm">
+                        {result.isVcp}
+                      </Badge>
+                    </td>
+                    <td className="py-4 px-4">
+                      <Badge variant="success" size="sm">
+                        {result.isVcp && <p>VCP</p>}
+                      </Badge>
                     </td>
                   </tr>
                 ))}

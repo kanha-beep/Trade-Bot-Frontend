@@ -10,9 +10,19 @@ import {
 import Card from "../components/UI/Card";
 import Badge from "../components/UI/Badge";
 import { getPositions, getStatus } from "../components/api.js";
+type VcpResult = {
+  symbol: string;
+  price: number;
+  signals: string[];
+  indicators: {
+    ema200: boolean;
+    rsi: boolean;
+    volume: boolean;
+  };
+};
 
 type ApiResponse = {
-  results: string[];
+  results: VcpResult[];
   last_run: number;
 };
 export default function Strategies() {
@@ -81,16 +91,15 @@ export default function Strategies() {
       contraction: "85%",
     },
   ];
-  const [results, setResults] = useState<string[]>([]);
+  const [results, setResults] = useState<VcpResult[]>([]);
   const [lastRun, setLastRun] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
-
   useEffect(() => {
     const fetchData = async () => {
       try {
         const res = await getPositions();
         const data = res.data as ApiResponse;
-
+        console.log("data:", data.results);
         setResults(data.results || []);
         setLastRun(data.last_run);
         setError(null);
@@ -103,6 +112,7 @@ export default function Strategies() {
     const id = setInterval(fetchData, 5000);
     return () => clearInterval(id);
   }, []);
+  console.log("real resukt: ", results);
   return (
     <div className="animate-fade-in">
       <section className="py-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
@@ -258,7 +268,7 @@ export default function Strategies() {
                         Target
                       </th>
                       <th className="text-right py-3 px-4 text-xs font-semibold text-primary-400 uppercase">
-                        Stop Loss
+                        VCP
                       </th>
                       <th className="text-right py-3 px-4 text-xs font-semibold text-primary-400 uppercase">
                         R:R Ratio
@@ -269,7 +279,7 @@ export default function Strategies() {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-primary-800">
-                    {crossoverResults.map((result, index) => (
+                    {/* {results.map((result, index) => (
                       <tr
                         key={index}
                         className="hover:bg-primary-800/30 transition-colors"
@@ -278,61 +288,86 @@ export default function Strategies() {
                           {result.symbol}
                         </td>
                         <td className="py-4 px-4 text-right text-primary-200">
-                          ₹{result.entry}
+                          ₹{Number(result.price).toFixed(2)}
                         </td>
                         <td className="py-4 px-4 text-right text-success">
-                          ₹{result.target}
-                        </td>
-                        <td className="py-4 px-4 text-right text-risk">
-                          ₹{result.stop}
+                          ₹{result.twoEma}
                         </td>
                         <td className="py-4 px-4 text-right">
                           <Badge variant="success" size="sm">
-                            {result.rr}
+                            {result.isVcp && <p>VCP</p>}
+                          </Badge>
+                        </td>
+                        <td className="py-4 px-4 text-right">
+                          <Badge variant="success" size="sm">
+                            {result.volume}
                           </Badge>
                         </td>
                         <td className="py-4 px-4">
                           <Badge
-                            variant={
-                              result.volume === "High" ? "accent" : "neutral"
-                            }
+                            variant={result.volume ? "accent" : "neutral"}
                             size="sm"
                           >
-                            {result.volume}
+                            {result.volume ? "High" : "Low"}
                           </Badge>
                         </td>
                       </tr>
-                    ))}
-
-                    {results.map((result, index) => (
+                    ))} */}
+                    {results.map((result) => (
                       <tr
-                        key={index}
+                        key={result.symbol}
                         className="hover:bg-primary-800/30 transition-colors"
                       >
                         <td className="py-4 px-4 font-semibold text-primary-100">
-                          {result}
+                          {result.symbol}
+                        </td>
+
+                        <td className="py-4 px-4 text-right text-primary-200">
+                          ₹{result.price.toFixed(2)}
+                        </td>
+
+                        <td className="py-4 px-4">
+                          {result.signals.map((s) => (
+                            <Badge
+                              key={s}
+                              variant="success"
+                              size="sm"
+                              className="mr-1"
+                            >
+                              {s}
+                            </Badge>
+                          ))}
+                        </td>
+
+                        <td className="py-4 px-4">
+                          <div className="flex flex-wrap gap-1 justify-end">
+                            {result.indicators.ema200 && (
+                              <Badge variant="accent" size="sm">
+                                EMA200
+                              </Badge>
+                            )}
+
+                            {result.indicators.rsi && (
+                              <Badge variant="success" size="sm">
+                                RSI
+                              </Badge>
+                            )}
+
+                            {result.indicators.volume && (
+                              <Badge variant="neutral" size="sm">
+                                VOLUME
+                              </Badge>
+                            )}
+
+                            {result.signals.includes("VCP") && (
+                              <Badge variant="success" size="sm">
+                                VCP
+                              </Badge>
+                            )}
+                          </div>
                         </td>
                       </tr>
                     ))}
-                    {/* <div style={{ padding: 20 }}>
-                      <h2>VCP Stocks</h2>
-                      {error && <p style={{ color: "red" }}>{error}</p>}
-                      <p>
-                        Last Scan:{" "}
-                        {lastRun
-                          ? new Date(lastRun * 1000).toLocaleString()
-                          : "—"}
-                      </p>
-                      {results.length === 0 ? (
-                        <p>No VCP stocks found</p>
-                      ) : (
-                        <ul>
-                          {results.map((s) => (
-                            <li key={s}>{s}</li>
-                          ))}
-                        </ul>
-                      )}
-                    </div> */}
                   </tbody>
                 </table>
               </div>
