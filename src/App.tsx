@@ -5,7 +5,7 @@ import Home from "./pages/Home";
 import Strategies from "./pages/Strategies";
 import Fundamental from "./pages/Fundamental";
 import News from "./pages/News";
-import { getPositions, getStatus } from "./components/api";
+import { getPositions } from "./components/api";
 type VcpResult = {
   symbol: string;
   isVcp: boolean;
@@ -57,26 +57,6 @@ function App() {
       <Header currentPage={currentPage} onNavigate={setCurrentPage} />
       <main className="flex-1">{renderPage()}</main>
       <Footer />
-
-      {/* <div style={{ padding: 20 }}>
-        <h2>VCP Stocks</h2>
-
-        {error && <p style={{ color: "red" }}>{error}</p>}
-
-        <p>
-          Last Scan: {lastRun ? new Date(lastRun * 1000).toLocaleString() : "—"}
-        </p>
-
-        {results.length === 0 ? (
-          <p>No VCP stocks found</p>
-        ) : (
-          <ul>
-            {results.map((s) => (
-              <li key={s.symbol}>{s.symbol}</li>
-            ))}
-          </ul>
-        )}
-      </div> */}
     </div>
   );
 }
